@@ -13,5 +13,5 @@ def load_plan(image_path):
 
 if __name__ == "__main__":
     # Пробуем открыть первую тестовую планировку
-    test_image = "../test-plans/plan1.jpg"  # указать имя твоего файла
+    test_image = "../test-plans/Снимок экрана 2026-08-15 в 10.15.29.png"  # указать имя твоего файла
     load_plan(test_image)
