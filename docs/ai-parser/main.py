@@ -1,32 +1,34 @@
 import os
 import glob
+import cv2
+import numpy as np
 from PIL import Image
 
-def preprocess_plan():
-    # Находим корень проекта от текущей папки
+def find_contours():
     current_dir = os.path.dirname(os.path.abspath(__file__))
-    project_root = os.path.abspath(os.path.join(current_dir, "..", ".."))
-    
-    # Ищем любую картинку в test-plans
-    search_pattern = os.path.join(project_root, "**", "test-plans", "*.*")
-    plans = [f for f in glob.glob(search_pattern, recursive=True) if f.lower().endswith(('.png', '.jpg', '.jpeg'))]
+    processed_path = os.path.join(current_dir, "processed_plan.png")
 
-    if not plans:
-        print("Ошибка: файлы в папке test-plans не найдены.")
+    if not os.path.exists(processed_path):
+        print("Ошибка: файл processed_plan.png не найден. Сначала запустите предобработку.")
         return
 
-    img_path = plans[0]
-    print(f"Обрабатываем файл: {img_path}")
+    # Загружаем обработанное изображение в OpenCV
+    img = cv2.imread(processed_path)
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-    # Переводим в Ч/Б и делаем бинаризацию
-    img = Image.open(img_path).convert("L")
-    threshold = 200
-    bw_img = img.point(lambda p: 255 if p > threshold else 0)
+    # Инвертируем: стены должны быть белыми (255), а фон черным (0) для поиска контуров
+    _, thresh = cv2.threshold(gray, 127, 255, cv2.THRESH_BINARY_INV)
 
-    # Сохраняем рядом со скриптом
-    out_path = os.path.join(current_dir, "processed_plan.png")
-    bw_img.save(out_path)
-    print(f"Успешно сохранено в: {out_path}")
+    # Находим контуры
+    contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+    # Отрисовываем найденные контуры зелёным цветом
+    result_img = img.copy()
+    cv2.drawContours(result_img, contours, -1, (0, 255, 0), 2)
+
+    output_path = os.path.join(current_dir, "contours_plan.png")
+    cv2.imwrite(output_path, result_img)
+    print(f"Найдено контуров: {len(contours)}. Результат сохранен в: {output_path}")
 
 if __name__ == "__main__":
-    preprocess_plan()
+    find_contours()
