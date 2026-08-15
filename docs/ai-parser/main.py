@@ -22,5 +22,5 @@ def preprocess_plan(image_path, output_path="processed_plan.png"):
     return bw_img
 
 if __name__ == "__main__":
-    test_image = "../../test-plans/1.png" # укажи имя своего файла
+    test_image = "../../test-plans/Снимок экрана 2026-08-15 в 10.20.51" # укажи имя своего файла
     preprocess_plan(test_image)
